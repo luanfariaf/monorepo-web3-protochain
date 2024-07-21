@@ -1,3 +1,5 @@
+import Transaction from "./transaction"
+
 /**
  * Blockchain Interface
  */
@@ -7,5 +9,5 @@ export default interface BlockInfo {
   difficulty: number
   maxDifficulty: number
   feePeerTx: number
-  data: string
+  transactions: Transaction[]
 }

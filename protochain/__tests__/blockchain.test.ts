@@ -95,7 +95,7 @@ describe("Blockchain tests", () => {
         expect(validation.success).toEqual(false);
     })
 
-    test('Should NOT add transaction (duplicated in mempool)', () => {
+    test('Should NOT add transaction (pending tx)', () => {
         const blockchain = new Blockchain();
 
         const tx = new Transaction({
@@ -103,10 +103,15 @@ describe("Blockchain tests", () => {
             hash: 'xyz'
         } as Transaction)
 
-        blockchain.mempool.push(tx);
+        const tx2 = new Transaction({
+            txInput: new TransactionInput(),
+            hash: 'zxy'
+        } as Transaction)
 
-        const validation = blockchain.addTransaction(tx);
-        expect(validation.success).toEqual(false);
+        blockchain.addTransaction(tx)
+
+        const validation = blockchain.addTransaction(tx2);
+        expect(validation.success).toBeFalsy();
     })
 
     test('Should get transaction (mempool)', () => {

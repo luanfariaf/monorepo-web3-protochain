@@ -4,6 +4,9 @@ dotenv.config()
 import axios from 'axios'
 import readline from 'readline'
 import Wallet from "../lib/wallet"
+import Transaction from '../lib/transaction'
+import TransactionType from '../lib/transactionType'
+import TransactionInput from '../lib/transactionInput'
 
 const BLOCKCHAIN_SERVER = process.env.BLOCKCHAIN_SERVER
 
@@ -30,6 +33,7 @@ function menu() {
     console.log("3 - Balance")
     console.log("4 - Send tx")
     console.log("5 - Logout")
+    console.log("6 - Search tx")
     rl.question("Choose your option: ", (answer) => {
       switch (answer) {
         case '1':
@@ -47,6 +51,9 @@ function menu() {
         case '5': 
           myWalletPriv = ''
           myWalletPub = ''
+        break
+        case '6':
+          searchTx()
         break
         default: {
           console.log('Wrong option!')
@@ -108,7 +115,58 @@ function sendTx() {
     return prevMenu()
   }
 
-  // TODO: sendTx by API
+  console.log(`You wallet is ${myWalletPub}`)
+  rl.question(`To Wallet:`, (toWallet) => {
+    if (toWallet.length < 66) {
+      console.log('Invalid wallet.')
+      return prevMenu();
+    }
+
+    rl.question('Amount: ', async (amountStr) => {
+      const amount = parseInt(amountStr)
+      if (!amount) {
+        console.log('Invalid amount.')
+        return prevMenu()
+      }
+
+      // TODO: balance validation
+
+      const tx = new Transaction()
+      tx.timestamp = Date.now()
+      tx.to = toWallet
+      tx.type = TransactionType.REGULAR
+      tx.txInput = new TransactionInput({
+        amount,
+        fromAddress: myWalletPub,
+      } as TransactionInput)
+
+      tx.txInput.sign(myWalletPriv)
+      tx.hash = tx.getHash()
+
+      try {
+        const txResponse = await axios.post(`${BLOCKCHAIN_SERVER}transactions/`, tx)
+        console.log(`Transaction accepted. Waiting the miners!`)
+        console.log(txResponse.data.hash)
+      } catch (error: any) {
+        console.error(error.response ? error.response.data : error.message)
+      }
+
+      return prevMenu()
+    })
+
+  })
+  prevMenu()
+}
+
+function searchTx() {
+  console.clear()
+
+  rl.question(`You tx hash: `, async (hash) => {
+    const response = await axios.get(`${BLOCKCHAIN_SERVER}transactions/${hash}`);
+    console.log(response.data);
+    return prevMenu()
+  })
+  
   prevMenu()
 }
 

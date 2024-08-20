@@ -1,5 +1,5 @@
 import { describe, test, expect, jest } from '@jest/globals';
-import Block from '../src/lib/block'
+import Block from '../src/lib/block';
 import Blockchain from '../src/lib/blockchain';
 import Transaction from '../src/lib/transaction';
 import TransactionInput from '../src/lib/transactionInput';
@@ -64,6 +64,24 @@ describe("Blockchain tests", () => {
         expect(validation.success).toEqual(true);
     })
 
+    test('Should NOT add transaction (pending tx)', () => {
+        const blockchain = new Blockchain();
+
+        const tx = new Transaction({
+            txInput: new TransactionInput(),
+            hash: 'xyz'
+        } as Transaction)
+        blockchain.addTransaction(tx);
+
+        const tx2 = new Transaction({
+            txInput: new TransactionInput(),
+            hash: 'xyz2'
+        } as Transaction)
+
+        const validation = blockchain.addTransaction(tx2);
+        expect(validation.success).toBeFalsy();
+    })
+
     test('Should NOT add transaction (invalid tx)', () => {
         const blockchain = new Blockchain();
 
@@ -93,25 +111,6 @@ describe("Blockchain tests", () => {
 
         const validation = blockchain.addTransaction(tx);
         expect(validation.success).toEqual(false);
-    })
-
-    test('Should NOT add transaction (pending tx)', () => {
-        const blockchain = new Blockchain();
-
-        const tx = new Transaction({
-            txInput: new TransactionInput(),
-            hash: 'xyz'
-        } as Transaction)
-
-        const tx2 = new Transaction({
-            txInput: new TransactionInput(),
-            hash: 'zxy'
-        } as Transaction)
-
-        blockchain.addTransaction(tx)
-
-        const validation = blockchain.addTransaction(tx2);
-        expect(validation.success).toBeFalsy();
     })
 
     test('Should get transaction (mempool)', () => {

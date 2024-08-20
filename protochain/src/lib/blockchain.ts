@@ -15,7 +15,7 @@ export default class Blockchain {
     nextIndex: number = 0;
 
     static readonly DIFFICULTY_FACTOR = 5;
-    static readonly TX_PEER_BLOCK = 2;
+    static readonly TX_PER_BLOCK = 2;
     static readonly MAX_DIFFICULTY = 62;
 
     /**
@@ -39,26 +39,25 @@ export default class Blockchain {
     }
 
     getDifficulty(): number {
-        return Math.ceil(this.blocks.length / Blockchain.DIFFICULTY_FACTOR);
+        return Math.ceil(this.blocks.length / Blockchain.DIFFICULTY_FACTOR) + 1;
     }
 
     addTransaction(transaction: Transaction): Validation {
-        if (transaction.txInput) {
+        if(transaction.txInput){
             const from = transaction.txInput.fromAddress;
             const pendingTx = this.mempool.map(tx => tx.txInput).filter(txi => txi!.fromAddress === from);
-            if (pendingTx && pendingTx.length) {
-                return new Validation(false, `This wallet has a pending transaction.`)
-            }
+            if(pendingTx && pendingTx.length)
+                return new Validation(false, `This wallet has a pending transaction.`);
 
-            // TODO: Create a funds origin validation
+            //TODO: validar a origem dos fundos
         }
+
         const validation = transaction.isValid();
         if (!validation.success)
             return new Validation(false, "Invalid tx: " + validation.message);
 
         if (this.blocks.some(b => b.transactions.some(tx => tx.hash === transaction.hash)))
             return new Validation(false, "Duplicated tx in blockchain.");
-
 
         this.mempool.push(transaction);
         return new Validation(true, transaction.hash);
@@ -126,7 +125,7 @@ export default class Blockchain {
         if (!this.mempool || !this.mempool.length)
             return null;
 
-        const transactions = this.mempool.slice(0, Blockchain.TX_PEER_BLOCK);
+        const transactions = this.mempool.slice(0, Blockchain.TX_PER_BLOCK);
         const difficulty = this.getDifficulty();
         const previousHash = this.getLastBlock().hash;
         const index = this.blocks.length;

@@ -3,6 +3,7 @@ import sha256 from 'crypto-js/sha256';
 import Validation from "./validation";
 import TransactionInput from "./transactionInput";
 import TransactionOutput from "./transactionOutput";
+import Blockchain from "./blockchain";
 
 /**
  * Transaction class
@@ -43,7 +44,22 @@ export default class Transaction {
         return sha256(this.type + from + to + this.timestamp).toString();
     }
 
-    isValid(): Validation {
+    getFee(): number {
+        let inputSum: number = 0, outputSum: number = 0;
+        if (this.txInputs && this.txInputs.length) {
+            inputSum = this.txInputs.map(txi => txi.amount).reduce((a, b) => a + b);
+
+            if (this.txOutputs && this.txOutputs.length) {
+                outputSum = this.txOutputs.map(txo => txo.amount).reduce((a, b) => a + b);
+            }
+
+            return inputSum - outputSum;
+        }
+
+        return 0;
+    }
+
+    isValid(difficulty: number, totalFees: number): Validation {
         if (this.hash !== this.getHash())
             return new Validation(false, "Invalid hash.");
 
@@ -70,8 +86,24 @@ export default class Transaction {
             return new Validation(false, "Invalid tx: TXO must reference the transaction");
         }
 
-        // TODO: Create reward validation when tx.type is equal to FEE
+        if (this.type === TransactionType.FEE) {
+            const txo = this.txOutputs[0];
+            if (txo.amount > Blockchain.getRewardAmount(difficulty) + totalFees) {
+                return new Validation(false, 'Invalid TX reward.');
+            }
+        }
 
         return new Validation();
+    }
+
+    static fromReward(txo: TransactionOutput): Transaction {
+        const tx = new Transaction({
+            type: TransactionType.FEE,
+            txOutputs: [txo],
+        } as Transaction);
+
+        tx.hash = tx.getHash();
+        tx.txOutputs[0].tx = tx.hash;
+        return tx;
     }
 }

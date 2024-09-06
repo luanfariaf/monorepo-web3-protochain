@@ -1,7 +1,7 @@
-# Blockchain Server
+# Protochain
 
 ## Description
-This project is a blockchain server that handles transactions and wallets. It provides endpoints to interact with the blockchain, add transactions, and retrieve wallet information.
+This project is a Protochain that simulate a blockchain server that handles transactions and wallets. It provides endpoints to interact with the blockchain, add transactions, and retrieve wallet information.
 
 ## Installation
 1. Clone the repository:
@@ -10,16 +10,33 @@ This project is a blockchain server that handles transactions and wallets. It pr
     ```
 2. Navigate to the project directory:
     ```sh
-    cd blockchain-server
+    cd monorepo-web3-protochain
     ```
 3. Install the dependencies:
     ```sh
     npm install
     ```
-4. Start the server:
+4. Navigate to protochain:
     ```sh
-    npm start
+    cd protochain
     ```
+
+    ### Start Blockchain Server
+    To start the blockchain server:
+        ```
+        npm run blockchain
+        ```
+    ### Start Miner Client
+    To start the miner client:
+        ```
+        npm run miner
+        ```
+
+    ### Start Wallet Client
+    To start the wallet client:
+        ```
+        npm run wallet
+        ```
 
 ## Usage
 Once the server is running, you can interact with it using the following endpoints:
@@ -52,3 +69,13 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 ## License
 This project is licensed under the MIT License.
+
+## Created by Luan Faria
+
+<p align="center">
+  <samp>
+    <a href="https://luuanfaria.dev">website</a> .
+    <a href="https://linkedin.com/in/luuanfaria">linkedin</a> .
+    <a href="https://twitter.com/luuanfariaf">twitter</a> .
+  </samp>
+</p>

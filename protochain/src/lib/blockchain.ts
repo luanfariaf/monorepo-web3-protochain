@@ -36,9 +36,9 @@ export default class Blockchain {
 
         const tx = Transaction.fromReward(new TransactionOutput({
             amount,
-            toAddress: miner,
+            toAddress: miner
         } as TransactionOutput));
-
+        
         const block = new Block();
         block.transactions = [tx];
         block.mine(this.getDifficulty(), miner);
@@ -55,23 +55,23 @@ export default class Blockchain {
     }
 
     addTransaction(transaction: Transaction): Validation {
-        if(transaction.txInputs && transaction.txInputs.length) {
+        if (transaction.txInputs && transaction.txInputs.length) {
             const from = transaction.txInputs[0].fromAddress;
+
             const pendingTx = this.mempool
                 .filter(tx => tx.txInputs && tx.txInputs.length)
                 .map(tx => tx.txInputs)
                 .flat()
                 .filter(txi => txi!.fromAddress === from);
 
-            if(pendingTx && pendingTx.length)
+            if (pendingTx && pendingTx.length)
                 return new Validation(false, `This wallet has a pending transaction.`);
 
             const utxo = this.getUtxo(from);
             for (let i = 0; i < transaction.txInputs.length; i++) {
                 const txi = transaction.txInputs[i];
-                if (utxo.findIndex(txo => txo.tx === txi.previousTx && txo.amount >= txi.amount) === -1) {
-                    return new Validation(false, `Invalid transactions: The TXO is already spent or don't exist.`);
-                }
+                if (utxo.findIndex(txo => txo.tx === txi.previousTx && txo.amount >= txi.amount) === -1)
+                    return new Validation(false, `Invalid tx: the TXO is already spent or unexistent`);
             }
         }
 
@@ -88,9 +88,8 @@ export default class Blockchain {
 
     addBlock(block: Block): Validation {
         const nextBlock = this.getNextBlock();
-
         if (!nextBlock)
-            return new Validation(false, "No transactions to mine.");
+            return new Validation(false, `There is no next block info.`);
 
         const validation = block.isValid(nextBlock.previousHash, nextBlock.index - 1, nextBlock.difficulty, nextBlock.feePerTx);
         if (!validation.success)
@@ -204,7 +203,7 @@ export default class Blockchain {
     getBalance(wallet: string): number {
         const utxo = this.getUtxo(wallet);
         if (!utxo || !utxo.length) return 0;
-        
+
         return utxo.reduce((a, b) => a + b.amount, 0);
     }
 

@@ -7,7 +7,6 @@ import Block from '../lib/block';
 import Blockchain from '../lib/blockchain';
 import Transaction from '../lib/transaction';
 import Wallet from '../lib/wallet';
-import TransactionOutput from '../lib/transactionOutput';
 
 /* c8 ignore next */
 const PORT: number = parseInt(`${process.env.BLOCKCHAIN_PORT || 3000}`);
@@ -85,14 +84,14 @@ app.post('/transactions', (req: Request, res: Response, next: NextFunction) => {
         res.status(400).json(validation);
 })
 
-app.get('/wallet/:wallet', (req: Request, res: Response, next: NextFunction) => {
+app.get('/wallets/:wallet', (req: Request, res: Response, next: NextFunction) => {
     const wallet = req.params.wallet;
 
     const utxo = blockchain.getUtxo(wallet);
     const balance = blockchain.getBalance(wallet);
     const fee = blockchain.getFeePerTx();
 
-    return res.json({ balance, fee, utxo });
+    return res.json({ balance, fee, utxo })
 })
 
 /* c8 ignore start */

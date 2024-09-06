@@ -18,13 +18,13 @@ export default class Transaction {
     constructor(tx?: Transaction) {
         this.type = tx?.type || TransactionType.REGULAR;
         this.timestamp = tx?.timestamp || Date.now();
-        
-        this.txInputs = tx?.txInputs 
-            ? tx.txInputs.map(txi => new TransactionInput(txi)) 
+
+        this.txInputs = tx?.txInputs
+            ? tx.txInputs.map(txi => new TransactionInput(txi))
             : undefined;
 
-        this.txOutputs = tx?.txOutputs 
-            ? tx.txOutputs.map(txo => new TransactionOutput(txo)) 
+        this.txOutputs = tx?.txOutputs
+            ? tx.txOutputs.map(txo => new TransactionOutput(txo))
             : [];
 
         this.hash = tx?.hash || this.getHash();
@@ -33,13 +33,13 @@ export default class Transaction {
     }
 
     getHash(): string {
-        const from = this.txInputs && this.txInputs.length 
-            ? this.txInputs.map(txi => txi.signature).join(",") 
+        const from = this.txInputs && this.txInputs.length
+            ? this.txInputs.map(txi => txi.signature).join(",")
             : "";
 
-        const to = this.txOutputs && this.txOutputs.length 
-        ? this.txOutputs.map(txo => txo.getHash).join(",") 
-        : "";
+        const to = this.txOutputs && this.txOutputs.length
+            ? this.txOutputs.map(txi => txi.getHash()).join(",")
+            : "";
 
         return sha256(this.type + from + to + this.timestamp).toString();
     }
@@ -49,9 +49,8 @@ export default class Transaction {
         if (this.txInputs && this.txInputs.length) {
             inputSum = this.txInputs.map(txi => txi.amount).reduce((a, b) => a + b);
 
-            if (this.txOutputs && this.txOutputs.length) {
+            if (this.txOutputs && this.txOutputs.length)
                 outputSum = this.txOutputs.map(txo => txo.amount).reduce((a, b) => a + b);
-            }
 
             return inputSum - outputSum;
         }
@@ -68,29 +67,24 @@ export default class Transaction {
 
         if (this.txInputs && this.txInputs.length) {
             const validations = this.txInputs.map(txi => txi.isValid()).filter(v => !v.success);
-            
             if (validations && validations.length) {
                 const message = validations.map(v => v.message).join(" ");
                 return new Validation(false, `Invalid tx: ${message}`);
             }
 
             const inputSum = this.txInputs.map(txi => txi.amount).reduce((a, b) => a + b, 0);
-            const inputOut = this.txOutputs.map(txo => txo.amount).reduce((a, b) => a + b, 0);
+            const inputOutput = this.txOutputs.map(txo => txo.amount).reduce((a, b) => a + b, 0);
+            if (inputSum < inputOutput)
+                return new Validation(false, `Invalid tx: input amounts must be equals or greater than outputs amounts.`);
+        }
 
-            if (inputSum < inputOut) {
-                return new Validation(false, "Invalid tx: Input amount must be equal or greater than output amount.");
-            }
-        }
-        
-        if (this.txOutputs.some(txo => txo.tx !== this.hash)) {
-            return new Validation(false, "Invalid tx: TXO must reference the transaction");
-        }
+        if (this.txOutputs.some(txo => txo.tx !== this.hash))
+            return new Validation(false, `Invalid TXO reference hash.`);
 
         if (this.type === TransactionType.FEE) {
             const txo = this.txOutputs[0];
-            if (txo.amount > Blockchain.getRewardAmount(difficulty) + totalFees) {
-                return new Validation(false, 'Invalid TX reward.');
-            }
+            if (txo.amount > Blockchain.getRewardAmount(difficulty) + totalFees)
+                return new Validation(false, `Invalid tx reward.`);
         }
 
         return new Validation();
@@ -99,8 +93,8 @@ export default class Transaction {
     static fromReward(txo: TransactionOutput): Transaction {
         const tx = new Transaction({
             type: TransactionType.FEE,
-            txOutputs: [txo],
-        } as Transaction);
+            txOutputs: [txo]
+        } as Transaction)
 
         tx.hash = tx.getHash();
         tx.txOutputs[0].tx = tx.hash;

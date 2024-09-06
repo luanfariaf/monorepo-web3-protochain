@@ -1,8 +1,8 @@
 import Validation from "./validation";
-import sha256 from "crypto-js/sha256";
+import sha256 from 'crypto-js/sha256';
 
 /**
- * TransactionOutput class
+ * Transaction Output class
  */
 export default class TransactionOutput {
     toAddress: string;
@@ -16,9 +16,8 @@ export default class TransactionOutput {
     }
 
     isValid(): Validation {
-        if (this.amount < 1) {
-            return new Validation(false, "Invalid amount");
-        }
+        if (this.amount < 1)
+            return new Validation(false, 'Negative amount.');
 
         return new Validation();
     }

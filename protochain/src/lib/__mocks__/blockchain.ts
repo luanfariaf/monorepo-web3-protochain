@@ -20,6 +20,7 @@ export default class Blockchain {
     constructor(miner: string) {
         this.blocks = [];
         this.mempool = [new Transaction()];
+
         this.blocks.push(new Block({
             index: 0,
             hash: 'abc',
@@ -54,7 +55,7 @@ export default class Blockchain {
     getTransaction(hash: string): TransactionSearch {
         if (hash === "-1")
             return { mempoolIndex: -1, blockIndex: -1 } as TransactionSearch;
-        
+
         return {
             mempoolIndex: 0,
             transaction: new Transaction()
@@ -99,7 +100,7 @@ export default class Blockchain {
             amount: 10,
             toAddress: wallet,
             tx: 'abc'
-        } as TransactionOutput)];
+        } as TransactionOutput)]
     }
 
     getUtxo(wallet: string): TransactionOutput[] {

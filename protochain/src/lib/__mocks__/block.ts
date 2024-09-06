@@ -25,7 +25,7 @@ export default class Block {
         this.hash = block?.hash || this.getHash();
     }
 
-    mine(difficulty: number, miner: string) {
+    mine(difficulty: number, miner: string){
         this.miner = miner;
     }
 
@@ -37,8 +37,8 @@ export default class Block {
      * Validates the mock block
      * @returns Returns if the mock block is valid
      */
-    isValid(previousHash: string, previousIndex: number, feePeerTx: number): Validation {
-        if (!previousHash || previousIndex < 0 || this.index < 0 || feePeerTx < 1)
+    isValid(previousHash: string, previousIndex: number, feePerTx: number): Validation {
+        if (!previousHash || previousIndex < 0 || this.index < 0 || feePerTx < 1)
             return new Validation(false, "Invalid mock block.");
 
         return new Validation();

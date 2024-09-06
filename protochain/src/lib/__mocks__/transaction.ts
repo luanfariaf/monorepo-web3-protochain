@@ -16,8 +16,8 @@ export default class Transaction {
     constructor(tx?: Transaction) {
         this.type = tx?.type || TransactionType.REGULAR;
         this.timestamp = tx?.timestamp || Date.now();
-        this.txOutputs = tx?.txOutputs || [new TransactionOutput()]
-        this.txInputs = tx?.txInputs || [new TransactionInput()]
+        this.txOutputs = tx?.txOutputs || [new TransactionOutput()];
+        this.txInputs = tx?.txInputs || [new TransactionInput()];
         this.hash = tx?.hash || this.getHash();
     }
 
@@ -26,7 +26,8 @@ export default class Transaction {
     }
 
     isValid(difficulty: number, totalFees: number): Validation {
-        if (this.timestamp < 1 || !this.hash || difficulty > 1 || totalFees < 0) return new Validation(false, "Invalid mock transaction.");
+        if (this.timestamp < 1 || !this.hash || difficulty < 1 || totalFees < 0)
+            return new Validation(false, "Invalid mock transaction.");
 
         return new Validation();
     }
@@ -35,7 +36,7 @@ export default class Transaction {
         const tx = new Transaction({
             type: TransactionType.FEE,
             txOutputs: [txo]
-        } as Transaction);
+        } as Transaction)
 
         tx.txInputs = undefined;
         tx.hash = tx.getHash();

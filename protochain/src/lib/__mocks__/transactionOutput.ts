@@ -1,7 +1,7 @@
 import Validation from "../validation";
 
 /**
- * TransactionOutput mocked class
+ * Mocked Transaction Output class
  */
 export default class TransactionOutput {
     toAddress: string;
@@ -15,14 +15,13 @@ export default class TransactionOutput {
     }
 
     isValid(): Validation {
-        if (this.amount < 1) {
-            return new Validation(false, "Invalid amount");
-        }
+        if (this.amount < 1)
+            return new Validation(false, 'Negative amount.');
 
         return new Validation();
     }
 
     getHash(): string {
-        return "abc"
+        return "abc";
     }
 }
